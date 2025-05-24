@@ -1,3 +1,2 @@
 # PiSite
-Source code of the PiSite website
-//Let bake some Pi!
+Source code of the PiSite website. Let bake some Pi!
