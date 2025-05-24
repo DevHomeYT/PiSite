@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Doto:wght@100..900&family=Nova+Mono&display=swap');
+
+        .centered {
+            text-align: center;
+            margin: 50px auto;
+            max-width: 80%;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+        #hi {
+            display: block;
+            word-wrap: break-word;
+            white-space: normal;
+            font-family: Nova Mono;
+            font-size: 24px;
+        }
+
+        #counter {
+            margin-top: 10px;
+            font-weight: bold;
+            font-family: Doto;
+        }
+
+        .myButton {
+            box-shadow: 0px 5px 0px 0px #3dc21b;
+            background-color: #44c767;
+            border-radius: 16px;
+            border: 5px solid #18ab29;
+            display: inline-block;
+            cursor: pointer;
+            color: #ffffff;
+            font-family: Nova Mono;
+            font-size: 28px;
+            padding: 15px 22px;
+            text-decoration: none;
+            text-shadow: 0px 2px 16px #2f6627;
+        }
+
+        .myButton:hover {
+            background-color: #5cbf2a;
+        }
+
+        .myButton:active {
+            position: relative;
+            top: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="centered">
+        <p id="hi"></p>
+        <button class="myButton" id="controlButton" onclick="toggleDisplay()">Go!</button>
+        <p id="counter">Digits shown: 0</p>
+    </div>
+
+    <script>
+        function* generateDigitsOfPi() {
+            let q = 1n;
+            let r = 180n;
+            let t = 60n;
+            let i = 2n;
+            while (true) {
+                let digit = ((i * 27n - 12n) * q + r * 5n) / (t * 5n);
+                yield Number(digit);
+                let u = i * 3n;
+                u = (u + 1n) * 3n * (u + 2n);
+                r = u * 10n * (q * (i * 5n - 2n) + r - t * digit);
+                q *= 10n * i * (i++ * 2n - 1n);
+                t *= u;
+            }
+        }
+
+        let generator = generateDigitsOfPi();
+        const output = document.getElementById("hi");
+        const counter = document.getElementById("counter");
+        const button = document.getElementById("controlButton");
+
+        let digitCount = 0;
+        let running = false;
+        let stopRequested = false;
+        let dotAdded = false;
+
+        async function startDisplay() {
+            running = true;
+            stopRequested = false;
+            button.textContent = "Stop";
+
+            while (!stopRequested) {
+                const digit = generator.next().value;
+
+                if (digitCount === 0) {
+                    output.textContent += digit + ".";
+                    dotAdded = true;
+                } else {
+                    output.textContent += digit;
+                }
+
+                digitCount++;
+                counter.textContent = `Digits shown: ${digitCount}`;
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+                await new Promise(resolve => setTimeout(resolve, 0.1));
+            }
+
+            running = false;
+            button.textContent = "Start Over";
+        }
+
+        function toggleDisplay() {
+            if (!running && button.textContent === "Go!") {
+                startDisplay();
+            } else if (running) {
+                stopRequested = true;
+            } else {
+                // Reset everything
+                output.textContent = "";
+                counter.textContent = "Digits shown: 0";
+                digitCount = 0;
+                generator = generateDigitsOfPi(); // Reset generator
+                button.textContent = "Go!";
+                dotAdded = false;
+            }
+        }
+    </script>
+</body>
+</html>
